@@ -8,7 +8,7 @@ def main():
     args = parser.parse_args()
 
     with open(args.input) as fin:
-        with open(args.output) as fout:
+        with open(args.output, "w") as fout:
             for line in fin:
                 to_write = " ".join(["::{}".format(word) for word in line.strip().split()]) + "\n"
                 fout.write(line)
