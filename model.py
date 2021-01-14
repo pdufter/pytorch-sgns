@@ -49,7 +49,7 @@ class Word2Vec(Bundler):
 class Word2VecHidden(Bundler):
 
     def __init__(self, vocab_size=20000, embedding_size=300, hidden_size=100, padding_idx=0):
-        super(Word2Vec, self).__init__()
+        super(Word2VecHidden, self).__init__()
         self.vocab_size = vocab_size
         self.embedding_size = embedding_size
         self.ivectors = nn.Embedding(self.vocab_size, self.embedding_size, padding_idx=padding_idx)
