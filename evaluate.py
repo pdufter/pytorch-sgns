@@ -19,10 +19,10 @@ def main():
     with open("data/idx2word.dat", "rb") as fin:
         vocab = np.array(pickle.load(fin))
     word2index = {w: i for (i, w) in enumerate(vocab)}
-    real = sorted([x for x in vocab if not x.startswith("::")])
-    fake = sorted([x for x in vocab if x.startswith("::")])
-    real_indices = np.array([word2index[x] for x in real if x not in {'enterprise', 'disappointeth', '<UNK>'}])
-    fake_indices = np.array([word2index[x] for x in fake if x not in {'enterprise', 'disappointeth', '<UNK>'}])
+    real = sorted([x for x in vocab if not x.startswith("::") and x not in {'enterprise', 'disappointeth', '<UNK>'}])
+    fake = sorted([x for x in vocab if x.startswith("::") and x not in {'enterprise', 'disappointeth', '<UNK>'}])
+    real_indices = np.array([word2index[x] for x in real])
+    fake_indices = np.array([word2index[x] for x in fake])
     vectors_real = vectors[real_indices]
     vectors_fake = vectors[fake_indices]
 
