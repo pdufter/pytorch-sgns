@@ -10,7 +10,7 @@ import numpy as np
 from tqdm import tqdm
 from torch.optim import Adam
 from torch.utils.data import Dataset, DataLoader
-from model import Word2Vec, SGNS
+from model import Word2Vec, SGNS, Word2VecHidden
 
 
 def parse_args():
@@ -22,10 +22,12 @@ def parse_args():
     parser.add_argument('--n_negs', type=int, default=20, help="number of negative samples")
     parser.add_argument('--epoch', type=int, default=100, help="number of epochs")
     parser.add_argument('--mb', type=int, default=4096, help="mini-batch size")
+    parser.add_argument('--hidden', type=int, default=100, help="hidden size")
     parser.add_argument('--ss_t', type=float, default=1e-5, help="subsample threshold")
     parser.add_argument('--conti', action='store_true', help="continue learning")
     parser.add_argument('--weights', action='store_true', help="use weights for negative sampling")
     parser.add_argument('--cuda', action='store_true', help="use CUDA")
+    parser.add_argument('--multilingual', action='store_true', help="multilingual")
     return parser.parse_args()
 
 
@@ -60,7 +62,10 @@ def train(args):
     weights = wf if args.weights else None
     if not os.path.isdir(args.save_dir):
         os.mkdir(args.save_dir)
-    model = Word2Vec(vocab_size=vocab_size, embedding_size=args.e_dim)
+    if args.multilingual:
+        model = Word2VecHidden(vocab_size=vocab_size, embedding_size=args.e_dim, hidden_size=args.hidden)
+    else:
+        model = Word2Vec(vocab_size=vocab_size, embedding_size=args.e_dim)
     modelpath = os.path.join(args.save_dir, '{}.pt'.format(args.name))
     sgns = SGNS(embedding=model, vocab_size=vocab_size, n_negs=args.n_negs, weights=weights)
     if os.path.isfile(modelpath) and args.conti:
