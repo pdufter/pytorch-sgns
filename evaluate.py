@@ -14,7 +14,6 @@ def main():
     parser.add_argument("--vectors", default=None, type=str, required=True, help="")
     parser.add_argument("--words", default=None, type=str, required=True, help="")
     args = parser.parse_args()
-    import ipdb;ipdb.set_trace()
     vectors = torch.load(args.vectors)
     vectors = vectors["embedding.ivectors.weight"].cpu().numpy()
     with open("data/idx2word.dat", "rb") as fin:
@@ -44,6 +43,7 @@ def main():
     for considern in [1, 5, 10]:
         hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
         pinv[considern] = hits1 / dist.shape[0]
+    import ipdb;ipdb.set_trace()
     return p, pinv
 
 
