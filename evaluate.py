@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import pickle
 from sklearn.metrics.pairwise import cosine_distances
+import torch
 
 
 def get_distances(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
