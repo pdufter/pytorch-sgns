@@ -67,11 +67,13 @@ class Word2VecHidden(Bundler):
     def forward_i(self, data):
         v = LT(data)
         v = v.cuda() if self.ivectors.weight.is_cuda else v
+        import ipdb;ipdb.set_trace()
         return t.dot(self.ivectors(v).dot(t.transpose(self.iW, 1, 0)))
 
     def forward_o(self, data):
         v = LT(data)
         v = v.cuda() if self.ovectors.weight.is_cuda else v
+        import ipdb;ipdb.set_trace()
         return t.dot(self.ovectors(v).dot(t.transpose(self.oW, 1, 0)))
 
 
