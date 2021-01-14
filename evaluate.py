@@ -22,8 +22,8 @@ def main():
     word2index = {w: i for (i, w) in enumerate(vocab)}
     real = sorted([x for x in vocab if not x.startswith("::")])
     fake = sorted([x for x in vocab if x.startswith("::")])
-    real_indices = np.array([word2index[x] for x in real if x != "<UNK>"])
-    fake_indices = np.array([word2index[x] for x in fake if x != "<UNK>"])
+    real_indices = np.array([word2index[x] for x in real if x not in {'enterprise', 'disappointeth', '<UNK>'}])
+    fake_indices = np.array([word2index[x] for x in fake if x not in {'enterprise', 'disappointeth', '<UNK>'}])
     vectors_real = vectors[real_indices]
     vectors_fake = vectors[fake_indices]
 
