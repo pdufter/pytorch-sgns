@@ -51,8 +51,8 @@ def main():
 
     ivectors = vectors["embedding.ivectors.weight"].cpu().numpy()
     ovectors = vectors["embedding.ovectors.weight"].cpu().numpy()
-    iW = vectors["embedding.iW.weight"].cpu().numpy()
-    oW = vectors["embedding.iW.weight"].cpu().numpy()
+    iW = vectors["embedding.iW"].cpu().numpy()
+    oW = vectors["embedding.oW"].cpu().numpy()
     ivectors_large = ivectors.dot(iW.transpose())
     ovectors_large = ovectors.dot(oW.transpose())
     print(get_precision(ivectors, ivectors))
