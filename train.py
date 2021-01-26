@@ -28,6 +28,7 @@ def parse_args():
     parser.add_argument('--weights', action='store_true', help="use weights for negative sampling")
     parser.add_argument('--cuda', action='store_true', help="use CUDA")
     parser.add_argument('--multilingual', action='store_true', help="multilingual")
+    parser.add_argument('--tie_weights', action='store_true', help="multilingual")
     return parser.parse_args()
 
 
@@ -67,7 +68,7 @@ def train(args):
     else:
         model = Word2Vec(vocab_size=vocab_size, embedding_size=args.e_dim)
     modelpath = os.path.join(args.save_dir, '{}.pt'.format(args.name))
-    sgns = SGNS(embedding=model, vocab_size=vocab_size, n_negs=args.n_negs, weights=weights)
+    sgns = SGNS(embedding=model, vocab_size=vocab_size, n_negs=args.n_negs, weights=weights, tie_weights=args.tie_weights)
     if os.path.isfile(modelpath) and args.conti:
         sgns.load_state_dict(t.load(modelpath))
     if args.cuda:

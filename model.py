@@ -77,7 +77,7 @@ class Word2VecHidden(Bundler):
 
 class SGNS(nn.Module):
 
-    def __init__(self, embedding, vocab_size=20000, n_negs=20, weights=None):
+    def __init__(self, embedding, vocab_size=20000, n_negs=20, weights=None, tie_weights=False):
         super(SGNS, self).__init__()
         self.embedding = embedding
         self.vocab_size = vocab_size
@@ -87,6 +87,7 @@ class SGNS(nn.Module):
             wf = np.power(weights, 0.75)
             wf = wf / wf.sum()
             self.weights = FT(wf)
+        self.tie_weights = tie_weights
 
     def forward(self, iword, owords):
         batch_size = iword.size()[0]
@@ -96,8 +97,12 @@ class SGNS(nn.Module):
         else:
             nwords = FT(batch_size, context_size * self.n_negs).uniform_(0, self.vocab_size - 1).long()
         ivectors = self.embedding.forward_i(iword).unsqueeze(2)
-        ovectors = self.embedding.forward_o(owords)
-        nvectors = self.embedding.forward_o(nwords).neg()
+        if self.tie_weights:
+            ovectors = self.embedding.forward_i(owords)
+            nvectors = self.embedding.forward_i(nwords).neg()
+        else:
+            ovectors = self.embedding.forward_o(owords)
+            nvectors = self.embedding.forward_o(nwords).neg()
         oloss = t.bmm(ovectors, ivectors).squeeze().sigmoid().log().mean(1)
         nloss = t.bmm(nvectors, ivectors).squeeze().sigmoid().log().view(-1, context_size, self.n_negs).sum(2).mean(1)
         return -(oloss + nloss).mean()
