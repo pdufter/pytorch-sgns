@@ -102,7 +102,7 @@ class SGNS(nn.Module):
         else:
             if self.weights is not None:
                 import ipdb;ipdb.set_trace()
-                is_fake = t.Tensor([x in self.fake_indices for x in iword])
+                is_fake = [x in self.fake_indices for x in iword]
                 nwords = t.multinomial(self.weights, batch_size * context_size * self.n_negs, replacement=True).view(batch_size, -1)
             else:
                 raise NotImplementedError()
