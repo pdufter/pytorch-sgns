@@ -15,6 +15,7 @@ def main():
     parser.add_argument("--words", default=None, type=str, required=True, help="")
     args = parser.parse_args()
     vectors = torch.load(args.vectors)
+    import ipdb;ipdb.set_trace()
     vectors = vectors["embedding.ivectors.weight"].cpu().numpy()
     with open("data/idx2word.dat", "rb") as fin:
         vocab = np.array(pickle.load(fin))
