@@ -19,9 +19,14 @@ def main():
     with open("data/idx2word.dat", "rb") as fin:
         vocab = np.array(pickle.load(fin))
     word2index = {w: i for (i, w) in enumerate(vocab)}
+    real_vocab = set([x for x in word2index if not x.startswith("::")])
+    fake_vocab = set([x for x in word2index if x.startswith("::")])
+    both = real_vocab & fake_vocab
+    print(real_vocab - fake_vocab)
+    print(fake_vocab - real_vocab)
     # TODO strange bug that disappointeth and enterprise are not in there?
-    real = sorted([x for x in vocab if not x.startswith("::") and x not in {'enterprise', 'disappointeth', '<UNK>'}])
-    fake = sorted([x for x in vocab if x.startswith("::") and x not in {'enterprise', 'disappointeth', '<UNK>'}])
+    real = sorted(both)
+    fake = sorted(["::" + x for x in both])
     for real_w, fake_w in zip(real, fake):
         if real_w != fake_w[2:]:
             raise ValueError("Token inconsistency.")
