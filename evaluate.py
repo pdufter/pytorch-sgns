@@ -20,7 +20,7 @@ def main():
         vocab = np.array(pickle.load(fin))
     word2index = {w: i for (i, w) in enumerate(vocab)}
     real_vocab = set([x for x in word2index if not x.startswith("::")])
-    fake_vocab = set([x for x in word2index if x.startswith("::")])
+    fake_vocab = set([x[2:] for x in word2index if x.startswith("::")])
     both = real_vocab & fake_vocab
     print(real_vocab - fake_vocab)
     print(fake_vocab - real_vocab)
