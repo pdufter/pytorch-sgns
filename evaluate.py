@@ -16,37 +16,53 @@ def main():
     args = parser.parse_args()
     vectors = torch.load(args.vectors)
     import ipdb;ipdb.set_trace()
-    vectors = vectors["embedding.ivectors.weight"].cpu().numpy()
     with open("data/idx2word.dat", "rb") as fin:
         vocab = np.array(pickle.load(fin))
     word2index = {w: i for (i, w) in enumerate(vocab)}
+    # TODO strange bug that disappointeth and enterprise are not in there?
     real = sorted([x for x in vocab if not x.startswith("::") and x not in {'enterprise', 'disappointeth', '<UNK>'}])
     fake = sorted([x for x in vocab if x.startswith("::") and x not in {'enterprise', 'disappointeth', '<UNK>'}])
+    for real_w, fake_w in zip(real, fake):
+        if real_w != fake_w[2:]:
+            raise ValueError("Token inconsistency.")
     real_indices = np.array([word2index[x] for x in real])
     fake_indices = np.array([word2index[x] for x in fake])
-    vectors_real = vectors[real_indices]
-    vectors_fake = vectors[fake_indices]
+    def get_precision(vectors_x, vectors_y):
+        vectors_real = vectors_x[real_indices]
+        vectors_fake = vectors_y[fake_indices]
+        dist = get_distances(vectors_real, vectors_fake)
+        if dist.shape[0] != dist.shape[1]:
+            print("Number of words is different?")
+        # get different p@k
+        nns = np.argsort(dist, axis=1)[:, :10]
+        gt = np.arange(dist.shape[0]).reshape(-1, 1)
+        p = {}
+        for considern in [1, 5, 10]:
+            hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
+            p[considern] = hits1 / dist.shape[0]
+        nns = np.argsort(dist, axis=0)[:10, :].transpose()
+        gt = np.arange(dist.shape[0]).reshape(-1, 1)
+        pinv = {}
+        for considern in [1, 5, 10]:
+            hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
+            pinv[considern] = hits1 / dist.shape[0]
+        return p, pinv
 
-    dist = get_distances(vectors_real, vectors_fake)
-    if dist.shape[0] != dist.shape[1]:
-        print("Number of words is different?")
-    # get different p@k
-    nns = np.argsort(dist, axis=1)[:, :10]
-    # import ipdb;ipdb.set_trace()
-    gt = np.arange(dist.shape[0]).reshape(-1, 1)
-    p = {}
-    for considern in [1, 5, 10]:
-        hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
-        p[considern] = hits1 / dist.shape[0]
-    nns = np.argsort(dist, axis=0)[:10, :].transpose()
-    gt = np.arange(dist.shape[0]).reshape(-1, 1)
-    pinv = {}
-    for considern in [1, 5, 10]:
-        hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
-        pinv[considern] = hits1 / dist.shape[0]
-    import ipdb;ipdb.set_trace()
-    return p, pinv
 
+    ivectors = vectors["embedding.ivectors.weight"].cpu().numpy()
+    ovectors = vectors["embedding.ovectors.weight"].cpu().numpy()
+    iW = vectors["embedding.iW.weight"].cpu().numpy()
+    oW = vectors["embedding.iW.weight"].cpu().numpy()
+    ivectors_large = ivectors.dot(iW.transpose())
+    ovectors_large = ovectors.dot(oW.transpose())
+    print(get_precision(ivectors, ivectors))
+    print(get_precision(ivectors, ovectors))
+    print(get_precision(ovectors, ivectors))
+    print(get_precision(ovectors, ovectors))
+    print(get_precision(ivectors_large, ivectors_large))
+    print(get_precision(ivectors_large, ovectors_large))
+    print(get_precision(ovectors_large, ivectors_large))
+    print(get_precision(ovectors_large, ovectors_large))
 
 
 if __name__ == '__main__':
