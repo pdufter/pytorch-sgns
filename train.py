@@ -29,6 +29,7 @@ def parse_args():
     parser.add_argument('--cuda', action='store_true', help="use CUDA")
     parser.add_argument('--multilingual', action='store_true', help="multilingual")
     parser.add_argument('--tie_weights', action='store_true', help="multilingual")
+    parser.add_argument('--sample_within', action='store_true', help="multilingual")
     return parser.parse_args()
 
 
@@ -60,6 +61,7 @@ def train(args):
     ws = 1 - np.sqrt(args.ss_t / wf)
     ws = np.clip(ws, 0, 1)
     vocab_size = len(idx2word)
+    import ipdb;ipdb.set_trace()
     weights = wf if args.weights else None
     if not os.path.isdir(args.save_dir):
         os.mkdir(args.save_dir)
@@ -68,7 +70,7 @@ def train(args):
     else:
         model = Word2Vec(vocab_size=vocab_size, embedding_size=args.e_dim)
     modelpath = os.path.join(args.save_dir, '{}.pt'.format(args.name))
-    sgns = SGNS(embedding=model, vocab_size=vocab_size, n_negs=args.n_negs, weights=weights, tie_weights=args.tie_weights)
+    sgns = SGNS(embedding=model, vocab_size=vocab_size, n_negs=args.n_negs, weights=weights, tie_weights=args.tie_weights, fake_indices={})
     if os.path.isfile(modelpath) and args.conti:
         sgns.load_state_dict(t.load(modelpath))
     if args.cuda:

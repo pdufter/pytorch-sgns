@@ -77,7 +77,7 @@ class Word2VecHidden(Bundler):
 
 class SGNS(nn.Module):
 
-    def __init__(self, embedding, vocab_size=20000, n_negs=20, weights=None, tie_weights=False):
+    def __init__(self, embedding, vocab_size=20000, n_negs=20, weights=None, tie_weights=False, fake_indices=None):
         super(SGNS, self).__init__()
         self.embedding = embedding
         self.vocab_size = vocab_size
@@ -88,15 +88,24 @@ class SGNS(nn.Module):
             wf = wf / wf.sum()
             self.weights = FT(wf)
         self.tie_weights = tie_weights
+        self.fake_indices = fake_indices
 
     def forward(self, iword, owords):
         batch_size = iword.size()[0]
         context_size = owords.size()[1]
-        import ipdb;ipdb.set_trace()
-        if self.weights is not None:
-            nwords = t.multinomial(self.weights, batch_size * context_size * self.n_negs, replacement=True).view(batch_size, -1)
+        if self.fake_indices is None:
+            import ipdb;ipdb.set_trace()
+            if self.weights is not None:
+                nwords = t.multinomial(self.weights, batch_size * context_size * self.n_negs, replacement=True).view(batch_size, -1)
+            else:
+                nwords = FT(batch_size, context_size * self.n_negs).uniform_(0, self.vocab_size - 1).long()
         else:
-            nwords = FT(batch_size, context_size * self.n_negs).uniform_(0, self.vocab_size - 1).long()
+            if self.weights is not None:
+                import ipdb;ipdb.set_trace()
+                is_fake = t.Tensor([x in self.fake_indices for x in iword])
+                nwords = t.multinomial(self.weights, batch_size * context_size * self.n_negs, replacement=True).view(batch_size, -1)
+            else:
+                raise NotImplementedError()
         ivectors = self.embedding.forward_i(iword).unsqueeze(2)
         if self.tie_weights:
             ovectors = self.embedding.forward_i(owords)
