@@ -67,10 +67,9 @@ def main():
         # Counter(np.where(nns == np.arange(dist.shape[0]).reshape(-1, 1))[1]).most_common(10)
         return np.where(nns == np.arange(dist.shape[0]).reshape(-1, 1))[1].mean()
 
-    def get_details(nns, real, fake):
-        queries = ["the", "god"]
+    def get_details(queries, nns, real, fake):
         for query in queries:
-            for nn in nns[real.index(query)]:
+            for _, nn in zip(range(10), nns[real.index(query)]):
                 print("{} - {}".format(query, fake[nn]))
             
 
@@ -80,6 +79,7 @@ def main():
     oW = vectors["embedding.oW"].cpu().numpy()
     ivectors_large = ivectors.dot(iW.transpose())
     ovectors_large = ovectors.dot(oW.transpose())
+    dist, nns = get_my_distance(ivectors, ivectors)
     import ipdb;ipdb.set_trace()
     # x[list(vocab).index("the")].dot(x[list(vocab).index("::the")])
     print(get_precision(ivectors, ivectors))
