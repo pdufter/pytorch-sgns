@@ -69,7 +69,7 @@ def main():
 
     def get_details(queries, nns, real, fake):
         for query in queries:
-            print("{} - ".format(query))
+            print("{} - ".format(query), end="")
             for _, nn in zip(range(10), nns[real.index(query)]):
                 print("{}".format(fake[nn]), end="")
             print()
@@ -81,6 +81,8 @@ def main():
     ivectors_large = ivectors.dot(iW.transpose())
     ovectors_large = ovectors.dot(oW.transpose())
     dist, nns = get_my_distance(ivectors, ivectors)
+    print("MEAN RANK: {}".format(mean_rank(nns)))
+    get_details(["the", ".", ",", ":", "God", "LORD", "run", "go"], nns, real, fake)
     import ipdb;ipdb.set_trace()
     # x[list(vocab).index("the")].dot(x[list(vocab).index("::the")])
     print(get_precision(ivectors, ivectors))
