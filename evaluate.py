@@ -15,7 +15,6 @@ def main():
     parser.add_argument("--words", default=None, type=str, required=True, help="")
     args = parser.parse_args()
     vectors = torch.load(args.vectors)
-    import ipdb;ipdb.set_trace()
     with open("data/idx2word.dat", "rb") as fin:
         vocab = np.array(pickle.load(fin))
     word2index = {w: i for (i, w) in enumerate(vocab)}
@@ -42,7 +41,6 @@ def main():
         nns = np.argsort(dist, axis=1)[:, :10]
         gt = np.arange(dist.shape[0]).reshape(-1, 1)
         p = {}
-        import ipdb;ipdb.set_trace()
         for considern in [1, 5, 10]:
             hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
             p[considern] = hits1 / dist.shape[0]
@@ -54,6 +52,15 @@ def main():
             pinv[considern] = hits1 / dist.shape[0]
         return p, pinv
 
+    def get_my_distance(vectors_x, vectors_y):
+        vectors_real = vectors_x[real_indices]
+        vectors_fake = vectors_y[fake_indices]
+        dist = get_distances(vectors_real, vectors_fake)
+        if dist.shape[0] != dist.shape[1]:
+            print("Number of words is different?")
+        # get different p@k
+        nns = np.argsort(dist, axis=1)
+        return dist, nns
 
     ivectors = vectors["embedding.ivectors.weight"].cpu().numpy()
     ovectors = vectors["embedding.ovectors.weight"].cpu().numpy()
@@ -61,6 +68,7 @@ def main():
     oW = vectors["embedding.oW"].cpu().numpy()
     ivectors_large = ivectors.dot(iW.transpose())
     ovectors_large = ovectors.dot(oW.transpose())
+    import ipdb;ipdb.set_trace()
     # x[list(vocab).index("the")].dot(x[list(vocab).index("::the")])
     print(get_precision(ivectors, ivectors))
     print(get_precision(ivectors, ovectors))
