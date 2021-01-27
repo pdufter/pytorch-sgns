@@ -3,6 +3,7 @@ import numpy as np
 import pickle
 from sklearn.metrics.pairwise import cosine_distances
 import torch
+from collections import Counter
 
 
 def get_distances(X: np.ndarray, Y: np.ndarray) -> np.ndarray:
@@ -61,6 +62,17 @@ def main():
         # get different p@k
         nns = np.argsort(dist, axis=1)
         return dist, nns
+
+    def mean_rank(nns):
+        # Counter(np.where(nns == np.arange(dist.shape[0]).reshape(-1, 1))[1]).most_common(10)
+        return np.where(nns == np.arange(dist.shape[0]).reshape(-1, 1))[1].mean()
+
+    def get_details(nns, real, fake):
+        queries = ["the", "god"]
+        for query in queries:
+            for nn in nns[real.index(query)]:
+                print("{} - {}".format(query, fake[nn]))
+            
 
     ivectors = vectors["embedding.ivectors.weight"].cpu().numpy()
     ovectors = vectors["embedding.ovectors.weight"].cpu().numpy()
