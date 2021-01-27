@@ -110,7 +110,7 @@ class SGNS(nn.Module):
             if self.weights is not None:
                 import ipdb;ipdb.set_trace()
                 # do broadcasting to check the values
-                is_fake = iword.view(-1, 1).eq(self.fake_indices).sum(1)
+                is_fake = iword.view(-1, 1).eq(self.fake_indices).sum(1).type(t.bool)
                 n_fake = is_fake.sum()
                 n_real = batch_size - n_fake
                 # two times sampling
