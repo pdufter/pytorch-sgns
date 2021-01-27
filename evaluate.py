@@ -42,6 +42,7 @@ def main():
         nns = np.argsort(dist, axis=1)[:, :10]
         gt = np.arange(dist.shape[0]).reshape(-1, 1)
         p = {}
+        import ipdb;ipdb.set_trace()
         for considern in [1, 5, 10]:
             hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
             p[considern] = hits1 / dist.shape[0]
@@ -60,6 +61,7 @@ def main():
     oW = vectors["embedding.oW"].cpu().numpy()
     ivectors_large = ivectors.dot(iW.transpose())
     ovectors_large = ovectors.dot(oW.transpose())
+    # x[list(vocab).index("the")].dot(x[list(vocab).index("::the")])
     print(get_precision(ivectors, ivectors))
     print(get_precision(ivectors, ovectors))
     print(get_precision(ovectors, ivectors))
