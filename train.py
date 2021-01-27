@@ -24,6 +24,7 @@ def parse_args():
     parser.add_argument('--mb', type=int, default=4096, help="mini-batch size")
     parser.add_argument('--hidden', type=int, default=100, help="hidden size")
     parser.add_argument('--ss_t', type=float, default=1e-5, help="subsample threshold")
+    parser.add_argument('--lr', type=float, default=1e-3, help="learning rate")
     parser.add_argument('--conti', action='store_true', help="continue learning")
     parser.add_argument('--weights', action='store_true', help="use weights for negative sampling")
     parser.add_argument('--cuda', action='store_true', help="use CUDA")
@@ -78,7 +79,7 @@ def train(args):
         sgns.load_state_dict(t.load(modelpath))
     if args.cuda:
         sgns = sgns.cuda()
-    optim = Adam(sgns.parameters())
+    optim = Adam(sgns.parameters(), lr=args.lr)
     optimpath = os.path.join(args.save_dir, '{}.optim.pt'.format(args.name))
     if os.path.isfile(optimpath) and args.conti:
         optim.load_state_dict(t.load(optimpath))
