@@ -69,9 +69,10 @@ def main():
 
     def get_details(queries, nns, real, fake):
         for query in queries:
+            print("{} - ".format(query))
             for _, nn in zip(range(10), nns[real.index(query)]):
-                print("{} - {}".format(query, fake[nn]))
-            
+                print("{}".format(fake[nn]), end="")
+            print()
 
     ivectors = vectors["embedding.ivectors.weight"].cpu().numpy()
     ovectors = vectors["embedding.ovectors.weight"].cpu().numpy()
