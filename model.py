@@ -88,13 +88,20 @@ class SGNS(nn.Module):
             wf = wf / wf.sum()
             self.weights = FT(wf)
         self.tie_weights = tie_weights
-        self.fake_indices = fake_indices
+        if weights is not None and fake_indices is not None:
+            is_fake = t.zeros(4000).type(t.bool)
+            is_fake[t.LongTensor(list(fake_indices))] = True
+            # adjust weights here and zero them out
+            self.weights_real = self.weights.detach().clone()
+            self.weights_real[is_fake] = 0.0
+            self.weights_fake = self.weights.detach().clone()
+            self.weights_fake[~is_fake] = 0.0
+            self.fake_indices = t.LongTensor(list(fake_indices))
 
     def forward(self, iword, owords):
         batch_size = iword.size()[0]
         context_size = owords.size()[1]
         if self.fake_indices is None:
-            import ipdb;ipdb.set_trace()
             if self.weights is not None:
                 nwords = t.multinomial(self.weights, batch_size * context_size * self.n_negs, replacement=True).view(batch_size, -1)
             else:
@@ -102,8 +109,17 @@ class SGNS(nn.Module):
         else:
             if self.weights is not None:
                 import ipdb;ipdb.set_trace()
-                is_fake = [x in self.fake_indices for x in iword]
-                nwords = t.multinomial(self.weights, batch_size * context_size * self.n_negs, replacement=True).view(batch_size, -1)
+                # do broadcasting to check the values
+                is_fake = iword.view(-1, 1).eq(self.fake_indices).sum(1)
+                n_fake = is_fake.sum()
+                n_real = batch_size - n_fake
+                # two times sampling
+                nwords_fake = t.multinomial(self.weights_fake, n_fake * context_size * self.n_negs, replacement=True).view(n_fake, -1)
+                nwords_real = t.multinomial(self.weights_real, n_real * context_size * self.n_negs, replacement=True).view(n_real, -1)
+                # create empty tensor and use is_fake to assign the sampled words to it
+                nwords = t.zeros(batch_size, context_size * self.n_negs).type(t.int)
+                nwords[is_fake] = nwords_fake
+                nwords[n_real] = nwords_real
             else:
                 raise NotImplementedError()
         ivectors = self.embedding.forward_i(iword).unsqueeze(2)
