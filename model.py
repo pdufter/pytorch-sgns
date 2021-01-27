@@ -118,7 +118,7 @@ class SGNS(nn.Module):
                 # create empty tensor and use is_fake to assign the sampled words to it
                 nwords = t.zeros(batch_size, context_size * self.n_negs).type(t.long)
                 nwords[is_fake] = nwords_fake
-                nwords[is_fake] = nwords_real
+                nwords[~is_fake] = nwords_real
             else:
                 raise NotImplementedError()
         ivectors = self.embedding.forward_i(iword).unsqueeze(2)
