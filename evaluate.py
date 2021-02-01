@@ -42,13 +42,13 @@ def mainpt():
         nns = np.argsort(dist, axis=1)[:, :10]
         gt = np.arange(dist.shape[0]).reshape(-1, 1)
         p = {}
-        for considern in [1, 5, 10]:
+        for considern in [1, 5, 10, 20, 50]:
             hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
             p[considern] = hits1 / dist.shape[0]
         nns = np.argsort(dist, axis=0)[:10, :].transpose()
         gt = np.arange(dist.shape[0]).reshape(-1, 1)
         pinv = {}
-        for considern in [1, 5, 10]:
+        for considern in [1, 5, 10, 20, 50]:
             hits1 = ((nns[:, :considern] == gt).sum(axis=1) > 0).sum()
             pinv[considern] = hits1 / dist.shape[0]
         return p, pinv
