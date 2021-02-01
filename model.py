@@ -60,7 +60,7 @@ class Word2VecHidden(Bundler):
         self.oW = nn.Parameter(FT(hidden_size, embedding_size).uniform_(-0.5, 0.5))
         self.ivectors.weight.requires_grad = True
         self.ovectors.weight.requires_grad = True
-        self.sm = t.nn.Softmax()
+        self.sm = t.nn.Softmax(dim=self.embedding_size)
 
     def forward(self, data):
         return self.forward_i(data)
