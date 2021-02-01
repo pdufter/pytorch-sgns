@@ -67,12 +67,12 @@ class Word2VecHidden(Bundler):
     def forward_i(self, data):
         v = LT(data)
         v = v.cuda() if self.ivectors.weight.is_cuda else v
-        return t.matmul(self.ivectors(v), t.transpose(self.iW, 1, 0))
+        return t.matmul(t.nn.Softmax(self.ivectors(v)), t.transpose(self.iW, 1, 0))
 
     def forward_o(self, data):
         v = LT(data)
         v = v.cuda() if self.ovectors.weight.is_cuda else v
-        return t.matmul(self.ovectors(v), t.transpose(self.oW, 1, 0))
+        return t.matmul(t.nn.Softmax(self.ovectors(v)), t.transpose(self.oW, 1, 0))
 
 
 class SGNS(nn.Module):
